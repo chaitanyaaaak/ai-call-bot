@@ -37,7 +37,8 @@ async def voice_handler():
     # Return TwiML response
     twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Play>https://your-render-url.onrender.com/static/response.mp3</Play>
+  <Play>https://ai-call-bot-4id2.onrender.com/static/response.mp3</Play>
 </Response>"""
+
 
     return PlainTextResponse(content=twiml, media_type="application/xml")
