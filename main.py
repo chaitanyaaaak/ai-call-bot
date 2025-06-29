@@ -1,52 +1,50 @@
-from fastapi import FastAPI
-from fastapi.responses import Response
-from gtts import gTTS
+from fastapi import FastAPI, Form
+from fastapi.responses import PlainTextResponse
 from langdetect import detect
-import os
 
 app = FastAPI()
 
 @app.post("/voice")
-async def voice_handler():
-    # Simulate what caller says (replace this later with real input)
-    caller_text = "Namaste, kya Chaitanya available hain?"
-
+async def handle_voice(
+    From: str = Form(...),
+    To: str = Form(...),
+    SpeechResult: str = Form("Hello, is Chaitanya available?")
+):
     try:
-        lang = detect(caller_text)
+        lang = detect(SpeechResult)
     except:
-        lang = 'en'
+        lang = "en"
 
-    # Define response based on language
-    if lang == 'hi':
-        response_text = "Sorry, this assistant currently supports only English. Please call again in English."
-    else:
+    # Hindi response
+    if lang == "hi":
         response_text = (
-            "Hello, this is Chaitanya's assistant. "
-            "He is currently unavailable. Please call back later. "
-            "Note: This is an automated system and cannot share any personal information."
+            "नमस्ते, मैं चैत्यन्य की सहायक हूं। वह अभी उपलब्ध नहीं हैं। "
+            "मैं उन्हें सूचित कर दूंगी कि आपने कॉल किया था। धन्यवाद!"
         )
+        voice = "Polly.Aditi"  # Indian female voice
+        language = "hi-IN"
+    else:
+        # English polite assistant response
+        response_text = (
+            "Hello! I’m Chaitanya’s assistant. He is currently unavailable. "
+            "Please let me know your message and I will notify him. "
+            "Note: I cannot share personal information."
+        )
+        voice = "Polly.Joanna"
+        language = "en-US"
 
-    # Create static folder if not exists
-    os.makedirs("static", exist_ok=True)
-
-    # Save response audio
-    tts = gTTS(text=response_text, lang='en')
-    filename = "static/response.mp3"
-    tts.save(filename)
-
-    # Return TwiML response
-    twiml = """
+    # TwiML response
+    twiml = f"""
     <?xml version="1.0" encoding="UTF-8"?>
     <Response>
-        <Say voice="Polly.Joanna" language="en-US">
-            Hello! I’m your virtual assistant. Please speak in English. I will try to help you.
+        <Say voice="{voice}" language="{language}">
+            {response_text}
         </Say>
-        <Pause length="3"/>
-        <Say voice="Polly.Joanna" language="en-US">
-            I'm listening...
+        <Pause length="2"/>
+        <Say voice="{voice}" language="{language}">
+            Thank you for calling. Goodbye.
         </Say>
     </Response>
     """
-    return Response(content=twiml, media_type="application/xml")
 
     return PlainTextResponse(content=twiml, media_type="application/xml")
