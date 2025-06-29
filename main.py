@@ -35,10 +35,18 @@ async def voice_handler():
     tts.save(filename)
 
     # Return TwiML response
-    twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Play>https://ai-call-bot-4id2.onrender.com/static/response.mp3</Play>
-</Response>"""
-
+    twiml = """
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Response>
+        <Say voice="Polly.Joanna" language="en-US">
+            Hello! I’m your virtual assistant. Please speak in English. I will try to help you.
+        </Say>
+        <Pause length="3"/>
+        <Say voice="Polly.Joanna" language="en-US">
+            I'm listening...
+        </Say>
+    </Response>
+    """
+    return Response(content=twiml, media_type="application/xml")
 
     return PlainTextResponse(content=twiml, media_type="application/xml")
